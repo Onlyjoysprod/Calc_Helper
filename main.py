@@ -25,8 +25,7 @@ class MainApp(App):
                        [['11', '0'], ['11', '1'], ['11', '2'], ['11', '3'], ['11', '4']],
                        [['12', '0'], ['12', '1'], ['12', '2'], ['12', '3'], ['12', '4']],
                        [['13', '0'], ['13', '1'], ['13', '2'], ['13', '3'], ['13', '4']],
-                       [['14', '0'], ['14', '1'], ['14', '2'], ['14', '3'], ['14', '4']],
-                       ]
+                       [['14', '0'], ['14', '1'], ['14', '2'], ['14', '3'], ['14', '4']]]
         self.result_box = [['0', '0', '0', '0', '0'],
                            ['0', '0', '0', '0', '0'],
                            ['0', '0', '0', '0', '0'],
@@ -43,6 +42,8 @@ class MainApp(App):
                            ['0', '0', '0', '0', '0'],
                            ['0', '0', '0', '0', '0']]
         self.button_list = []
+        self.result_inputs = []
+        self.total_inputs = []
 
     def build(self):
         main_layout = BoxLayout(orientation='vertical')
@@ -65,14 +66,10 @@ class MainApp(App):
         result.add_widget(Label(text='', size_hint=(0.5, 1)))
         result.add_widget(self.box_weight)
 
-        self.result1_input = TextInput(text='', multiline=False, readonly=True, halign="center")
-        self.result2_input = TextInput(text='', multiline=False, readonly=True, halign="center")
-        self.result3_input = TextInput(text='', multiline=False, readonly=True, halign="center")
-        self.result4_input = TextInput(text='', multiline=False, readonly=True, halign="center")
-        result.add_widget(self.result1_input)
-        result.add_widget(self.result2_input)
-        result.add_widget(self.result3_input)
-        result.add_widget(self.result4_input)
+        for i in range(4):
+            result_input = TextInput(text='', multiline=False, readonly=True, halign="center")
+            self.result_inputs.append(result_input)
+            result.add_widget(result_input)
 
         leftGrid.add_widget(result)
 
@@ -97,7 +94,7 @@ class MainApp(App):
 
             leftGrid.add_widget(box)
 
-        self.button_list.extend([self.result1_input, self.result2_input, self.result3_input, self.result4_input])
+        self.button_list.extend(self.result_inputs)
 
         total_box = BoxLayout(orientation="horizontal")
 
@@ -105,16 +102,10 @@ class MainApp(App):
         clear_btn.bind(on_press=self.clear_btn)
         total_box.add_widget(clear_btn)
 
-        self.total0_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
-        self.total1_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
-        self.total2_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
-        self.total3_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
-        self.total4_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
-        total_box.add_widget(self.total0_input)
-        total_box.add_widget(self.total1_input)
-        total_box.add_widget(self.total2_input)
-        total_box.add_widget(self.total3_input)
-        total_box.add_widget(self.total4_input)
+        for i in range(5):
+            total_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
+            self.total_inputs.append(total_input)
+            total_box.add_widget(total_input)
 
         leftGrid.add_widget(total_box)
         left.add_widget(leftGrid)
@@ -152,16 +143,13 @@ class MainApp(App):
             product_weights[4] += eval(f'{box[4]}')
 
         if product_weights[0] != 0:
-            self.result1_input.text = f'{round(product_weights[1] / product_weights[0] * 100, 1)}%'
-            self.result2_input.text = f'{round(product_weights[2] / product_weights[0] * 100, 1)}%'
-            self.result3_input.text = f'{round(product_weights[3] / product_weights[0] * 100, 1)}%'
-            self.result4_input.text = f'{round(product_weights[4] / product_weights[0] * 100, 1)}%'
+            for i, el in enumerate(self.result_inputs):
+                el.text = f'{round(product_weights[i+1] / product_weights[0] * 100, 1)}%'
+                print(i)
 
-        self.total0_input.text = f'{product_weights[0]:.2f}'
-        self.total1_input.text = f'{product_weights[1]:.2f}'
-        self.total2_input.text = f'{product_weights[2]:.2f}'
-        self.total3_input.text = f'{product_weights[3]:.2f}'
-        self.total4_input.text = f'{product_weights[4]:.2f}'
+        for i, el in enumerate(self.total_inputs):
+            el.text = f'{product_weights[i]:.2f}'
+
         print(product_weights)
 
 
