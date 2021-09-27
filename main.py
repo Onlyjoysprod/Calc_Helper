@@ -1,168 +1,170 @@
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
 from kivy.uix.label import Label
 
 
 class MainApp(App):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.box_params = ['общий', '2 кат.', 'нестанд.', 'отходы', 'осыпь']
+        self.box_weight = TextInput(text='1', multiline=False, readonly=False, halign="center")
+        self.id_box = [[['0', '0'], ['0', '1'], ['0', '2'], ['0', '3'], ['0', '4']],
+                       [['1', '0'], ['1', '1'], ['1', '2'], ['1', '3'], ['1', '4']],
+                       [['2', '0'], ['2', '1'], ['2', '2'], ['2', '3'], ['2', '4']],
+                       [['3', '0'], ['3', '1'], ['3', '2'], ['3', '3'], ['3', '4']],
+                       [['4', '0'], ['4', '1'], ['4', '2'], ['4', '3'], ['4', '4']],
+                       [['5', '0'], ['5', '1'], ['5', '2'], ['5', '3'], ['5', '4']],
+                       [['6', '0'], ['6', '1'], ['6', '2'], ['6', '3'], ['6', '4']],
+                       [['7', '0'], ['7', '1'], ['7', '2'], ['7', '3'], ['7', '4']],
+                       [['8', '0'], ['8', '1'], ['8', '2'], ['8', '3'], ['8', '4']],
+                       [['9', '0'], ['9', '1'], ['9', '2'], ['9', '3'], ['9', '4']],
+                       [['10', '0'], ['10', '1'], ['10', '2'], ['10', '3'], ['10', '4']],
+                       [['11', '0'], ['11', '1'], ['11', '2'], ['11', '3'], ['11', '4']],
+                       [['12', '0'], ['12', '1'], ['12', '2'], ['12', '3'], ['12', '4']],
+                       [['13', '0'], ['13', '1'], ['13', '2'], ['13', '3'], ['13', '4']],
+                       [['14', '0'], ['14', '1'], ['14', '2'], ['14', '3'], ['14', '4']],
+                       ]
+        self.result_box = [['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0'],
+                           ['0', '0', '0', '0', '0']]
+        self.button_list = []
+
     def build(self):
-        self.text_input_history = []
-        self.reset_state = 0
-        self.step_count = 0
-        self.box_data = [[]]
-        self.box_count = 0
-        self.box_params = ['общий', 'пустой', '2 кат.', 'нестанд.', 'отходы', 'общий']
-        main_layout = BoxLayout(orientation="vertical")
-        self.solution = TextInput(
-            multiline=False, readonly=True, halign="right", font_size=40
-        )
-        self.input_text = TextInput(
-            multiline=False, readonly=True, halign="right", font_size=40
-        )
-        main_layout.add_widget(self.solution)
-        main_layout.add_widget(self.input_text)
-        buttons = [
-            ["7", "8", "9"],
-            ["4", "5", "6"],
-            ["1", "2", "3"],
-            [".", "0", "C"],
-        ]
-        for row in buttons:
-            h_layout = BoxLayout()
-            for label in row:
-                button = Button(
-                    text=label,
-                    pos_hint={"center_x": 0.5, "center_y": 0.5},
-                )
-                button.bind(on_press=self.on_button_press)
-                h_layout.add_widget(button)
-            main_layout.add_widget(h_layout)
-        r_layout = BoxLayout()
+        main_layout = BoxLayout(orientation='vertical')
+        left = BoxLayout(orientation='vertical')
+        leftGrid = GridLayout(cols=1, padding=20)
+        leftGrid.bind(minimum_height=leftGrid.setter('height'))
+        top_box = BoxLayout(orientation="horizontal")
 
-        self.box_info = Label(text=f'Ящик {self.box_count + 1}\n'
-                                   f'{self.box_params[0]}', halign="center")
-        r_layout.add_widget(self.box_info)
+        header_box = BoxLayout()
+        header_box.add_widget(Label(text='', size_hint=(0.5, 1)))
+        header_box.add_widget(Label(text='Вес тары'))
 
-        equals_button = Button(
-            text="Назад", pos_hint={"center_x": 0.5, "center_y": 0.5}
-        )
-        equals_button.bind(on_press=self.on_back)
-        next_button = Button(
-            text="Далее", pos_hint={"center_x": 0.5, "center_y": 0.5}
-        )
-        next_button.bind(on_press=self.on_next_btn)
-        r_layout.add_widget(equals_button)
-        r_layout.add_widget(next_button)
-        main_layout.add_widget(r_layout)
+        for i in range(4):
+            header_box.add_widget(Label(text='%'))
+        leftGrid.add_widget(header_box)
+
+        result = BoxLayout()
+        self.box_weight.bind(text=self.on_text)
+        self.box_weight.spec_number = 'box_weight'
+        result.add_widget(Label(text='', size_hint=(0.5, 1)))
+        result.add_widget(self.box_weight)
+
+        self.result1_input = TextInput(text='', multiline=False, readonly=True, halign="center")
+        self.result2_input = TextInput(text='', multiline=False, readonly=True, halign="center")
+        self.result3_input = TextInput(text='', multiline=False, readonly=True, halign="center")
+        self.result4_input = TextInput(text='', multiline=False, readonly=True, halign="center")
+        result.add_widget(self.result1_input)
+        result.add_widget(self.result2_input)
+        result.add_widget(self.result3_input)
+        result.add_widget(self.result4_input)
+
+        leftGrid.add_widget(result)
+
+        label1 = Label(text="", size_hint=(0.5, 1))
+        top_box.add_widget(label1)
+
+        for i in range(5):
+            label1 = Label(text=self.box_params[i])
+            top_box.add_widget(label1)
+        leftGrid.add_widget(top_box)
+        for x in range(15):
+            box = BoxLayout(orientation="horizontal")
+            label = Label(text=str(x + 1), size_hint=(0.5, 1))
+            box.add_widget(label)
+            for i in range(5):
+                num_input = TextInput(text='', multiline=False, readonly=False, halign="right",
+                                           input_filter='float')
+                num_input.spec_number = self.id_box[x][i]
+                num_input.bind(text=self.on_text)
+                self.button_list.append(num_input)
+                box.add_widget(num_input)
+
+            leftGrid.add_widget(box)
+
+        self.button_list.extend([self.result1_input, self.result2_input, self.result3_input, self.result4_input])
+
+        total_box = BoxLayout(orientation="horizontal")
+
+        clear_btn = Button(text='C', size_hint=(0.5, 1))
+        clear_btn.bind(on_press=self.clear_btn)
+        total_box.add_widget(clear_btn)
+
+        self.total0_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
+        self.total1_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
+        self.total2_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
+        self.total3_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
+        self.total4_input = TextInput(text='0', multiline=False, readonly=True, halign="center")
+        total_box.add_widget(self.total0_input)
+        total_box.add_widget(self.total1_input)
+        total_box.add_widget(self.total2_input)
+        total_box.add_widget(self.total3_input)
+        total_box.add_widget(self.total4_input)
+
+        leftGrid.add_widget(total_box)
+        left.add_widget(leftGrid)
+        main_layout.add_widget(left)
 
         return main_layout
 
-    def on_next_btn(self, instance):
-        if self.input_text.text != "" and self.input_text.text != "Подтв. сброс":
-            if self.step_count < 5:
-                self.step_count += 1
-                if self.step_count == 1 and self.box_count > 0:
-                    self.box_data[self.box_count].append(self.input_text.text)
-                    self.input_text.text = self.box_data[0][1]
-                else:
-                    self.box_data[self.box_count].append(self.input_text.text)
+    def clear_btn(self, instance):
+        print(self.button_list)
+        for btn in self.button_list:
+            btn.text = ''
 
-                self.text_input_history.append(self.input_text.text)
-                self.input_text.text = ""
-                self.box_info.text = f'Ящик {self.box_count + 1}\n' \
-                                     f'{self.box_params[self.step_count]}'
-            if self.step_count >= 5:
-                self.box_count += 1
-                self.box_data.append([])
-                self.box_info.text = f'Ящик {self.box_count + 1}\n' \
-                                     f'{self.box_params[self.step_count]}'
-                self.step_count = 0
-            MainApp.solution(self)
-
-            print(self.box_data)
-            print(self.text_input_history)
-            print(self.step_count)
-            print(self.box_count)
-
-    def on_back(self, instance):
-        if len(self.text_input_history) > 0:
-            self.input_text.text = self.text_input_history[-1]
-
-        if len(self.box_data[0]) > 0:
-            self.step_count -= 1
-
-            if self.step_count < 0:
-                self.step_count = 4
-                self.box_count -= 1
-                self.box_data.pop()
-                if self.box_count < 0:
-                    self.box_count = 0
-            self.text_input_history.pop()
-            (self.box_data[self.box_count]).pop()
-            self.box_info.text = f'Ящик {self.box_count + 1}\n' \
-                                 f'{self.box_params[self.step_count]}'
-
-            print(self.box_data)
-            print(self.text_input_history)
-            print(self.step_count)
-            print(self.box_count)
-        MainApp.solution(self)
-
-    def on_button_press(self, instance):
-        current = self.input_text.text
-        button_text = instance.text
-
-        if button_text == "C":
-            if self.input_text.text != "" and self.input_text.text != "Подтв. сброс":
-                self.input_text.text = ""
+    def on_text(self, instance, value):
+        print(instance.spec_number)
+        if instance.spec_number != 'box_weight':
+            x, y = int(instance.spec_number[0]), int(instance.spec_number[1])
+            if value != '':
+                self.result_box[x][y] = value
             else:
-                self.reset_state += 1
-                print(self.reset_state)
-                if self.reset_state == 1:
-                    self.input_text.text = "Подтв. сброс"
-            if self.reset_state == 2:
-                self.reset_state = 0
-                self.input_text.text = ""
-                self.solution.text = ""
-                self.step_count = 0
-                self.box_count = 0
-                self.box_data = [[]]
-                self.text_input_history = []
-                self.box_info.text = f'Ящик {self.box_count + 1}\n' \
-                                     f'{self.box_params[self.step_count]}'
+                self.result_box[x][y] = '0'
         else:
-            if self.input_text.text != "Подтв. сброс":
-                new_text = current + button_text
-                if new_text == '0':
-                    self.input_text.text = ""
-                elif new_text == '.':
-                    self.input_text.text = "0."
-                else:
-                    self.input_text.text = new_text
-                MainApp.solution(self)
+            if value != '':
+                instance.text = value
             else:
-                self.reset_state = 0
-                new_text = button_text
-                if new_text == '0':
-                    self.input_text.text = ""
-                elif new_text == '.':
-                    self.input_text.text = "0."
-                else:
-                    self.input_text.text = new_text
+                instance.text = '0'
 
-    def solution(self, *args):
-        boxes = self.box_data
-        product_weights = 0
-        waste_weights = 0
-        for i in range(self.box_count):
-            product_weights += eval(f'{boxes[i][0]}-{boxes[i][1]}')
-            waste_weights += eval(f'{boxes[i][2]}+{boxes[i][3]}+{boxes[i][4]}')
-            print(product_weights)
-            print(waste_weights)
-            self.solution.text = f'{product_weights} -- {waste_weights} -- {round(waste_weights / product_weights * 100, 1)}%'
+        product_weights = [0, 0, 0, 0, 0]
+
+        for box in self.result_box:
+            if box[0] != '0':
+                product_weights[0] += eval(f'{box[0]} - {self.box_weight.text}')
+            product_weights[1] += eval(f'{box[1]}')
+            product_weights[2] += eval(f'{box[2]}')
+            product_weights[3] += eval(f'{box[3]}')
+            product_weights[4] += eval(f'{box[4]}')
+
+        if product_weights[0] != 0:
+            self.result1_input.text = f'{round(product_weights[1] / product_weights[0] * 100, 1)}%'
+            self.result2_input.text = f'{round(product_weights[2] / product_weights[0] * 100, 1)}%'
+            self.result3_input.text = f'{round(product_weights[3] / product_weights[0] * 100, 1)}%'
+            self.result4_input.text = f'{round(product_weights[4] / product_weights[0] * 100, 1)}%'
+
+        self.total0_input.text = f'{product_weights[0]:.2f}'
+        self.total1_input.text = f'{product_weights[1]:.2f}'
+        self.total2_input.text = f'{product_weights[2]:.2f}'
+        self.total3_input.text = f'{product_weights[3]:.2f}'
+        self.total4_input.text = f'{product_weights[4]:.2f}'
+        print(product_weights)
 
 
 if __name__ == "__main__":
-    app = MainApp()
-    app.run()
+    start_app = MainApp()
+    start_app.run()
