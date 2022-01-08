@@ -120,6 +120,7 @@ class MainApp(App):
 
     def on_text(self, instance, value):
         print(instance.spec_number)
+
         if instance.spec_number != 'box_weight':
             x, y = int(instance.spec_number[0]), int(instance.spec_number[1])
             if value != '':
